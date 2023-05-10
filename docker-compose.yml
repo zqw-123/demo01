@@ -1,0 +1,22 @@
+version: '3'
+
+networks:
+  nginx-proxy:
+    external: true
+    
+services:
+  dtn2:
+    image: holbertonschool/ubuntu-1604-gcc5:latest
+    restart: unless-stopped
+    hostname: dtn2
+    container_name: dtn2
+    command: sh -c "/usr/local/dtn-2.9.0/daemon/dtnd -c /dtn/dtn.conf"
+    ports:
+      - "4556:4556"
+      - "5010:5010"
+    volumes:
+      - ./DTN:/dtn
+    networks:
+      - nginx-proxy
+
+  

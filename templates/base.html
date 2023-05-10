@@ -1,0 +1,30 @@
+<!doctype html>
+<title>风机监测平台Demo</title>
+<section class="content">
+  <header>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/basestyle.css') }}">
+    <link href='http://fonts.googleapis.com/css?family=Lobster+Two:700' rel='stylesheet' type='text/css' />
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    <script type=text/javascript>
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+      $('#init').bind('click', function(){
+      $.getJSON($SCRIPT_ROOT + '/test',
+        function(data){
+          alter(data.result)
+        })
+      })
+      $('#import').bind('click', function(){
+      $.getJSON($SCRIPT_ROOT + '/test',
+        function(data){
+          console.log(data)
+          // alert(data);
+        })
+      })
+    </script>
+    {% block header %}{% endblock %}
+  </header>
+  {% for message in get_flashed_messages() %}
+  <div class="flash">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
