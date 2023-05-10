@@ -14,4 +14,8 @@ RUN apt-get install ffmpeg libsm6 libxext6  -y
 
 COPY . /code/
 
+EXPOSE 5000
+
+CMD ["/bin/bash", "./Scripts.sh"]
+
 
