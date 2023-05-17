@@ -1,0 +1,58 @@
+*{
+	margin:0;
+	padding:0;
+}
+
+body{
+	font-size:13px;
+	color:#eee;
+	font-family:Arial, Helvetica, sans-serif;
+	background:url('img/background2.png') no-repeat #10122c;
+	background-size: cover;
+	background-color: #10122c;
+}
+
+#basenav {
+	background: rgb(31, 52, 58);
+	display:flex;
+	padding: 0 0.5rem;
+	justify-content: flex-end;
+  }
+
+  #basenavul  {
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+  }
+  
+  .basenava {
+	display: block;
+	padding: 0.5rem;
+  }
+
+
+  .basenava, a:visited {
+    text-decoration: none;
+    outline: none;
+		color: #97cae6;
+	}
+
+.file {
+	display: flex;
+	justify-content: center;
+	overflow: hidden;
+	color: #f0faff;
+	font-size: 0.8rem;
+	margin-left: 5rem;
+	padding: 0.3vh 0vw;
+}
+
+.select_file {
+	width: 60%;
+	font-size: 0.6vw;
+}
+
+.upload_file {
+	font-size: 0.6vw;
+}

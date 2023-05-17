@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% if g.user %}
+<a class="action" href="{{ url_for('blog.create') }}">New</a>
+{% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/indexstyle.css') }}">
+<script src="{{ url_for('static', filename='js/script_index.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<nav id="basenav">
+  <form method="post" action="{{url_for('route_blue.up_photo')}}" enctype="multipart/form-data" target="frameName">
+    <div class="file">
+      <input class="select_file" type="file" size="5" name="photo" />
+      <input class="upload_file" type="submit" value="上传图片" class="button-new" />
+    </div>
+  </form>
+</nav>
+<div class="content_box">
+  <div class="title">
+    <img src="{{ url_for('static', filename='css/img/fans2.webp') }}" alt="">
+    <h1 id="logo">风机监测平台</h1>
+  </div>
+  <div class="container">
+    <!-- 左侧统计信息 -->
+    <div class="status_count">
+      <i class="topL"></i>
+      <i class="topR"></i>
+      <i class="bottomL"></i>
+      <i class="bottomR"></i>
+      <div class="status_title">
+        <div style="padding-left: 3vw; font-weight: 800">风机实时状态分析</div>
+        <div class="tem_title">
+          温度: <span id="temp">+27</span>℃
+        </div>
+      </div>
+      <div class="count_data">
+        <div class="detail_data">
+          <div class="detail_title">
+            <img id="true_photo" src="{{ url_for('static', filename='/css/img/fans2.webp') }}" alt="">
+            <div>风机真实状态:</div>
+            <div id="realStatus" style="padding-left: 2vw;">正常</div>
+          </div>
+          <div style="font-size: 0.9vw; margin: 3vh 0 0 4vw;">程度: <span id="true">无</span></div>
+        </div>
+        <div class="detail_data">
+          <div class="detail_title">
+            <img id="pred_photo" src="{{ url_for('static', filename='/css/img/fans2.webp') }}" alt="">
+            <div>模型识别结果:</div>
+            <div id="modelStatus" style="padding-left: 2vw;">正常</div>
+          </div>
+          <div style="font-size: 0.9vw; margin: 3vh 0 0 4vw;" >程度: <span id="pred">无</span></div>
+        </div>
+      </div>
+      <div class="tem_acc">
+        <div class="count_acc">
+          <div>高温下模型精度</div>
+          <div class="histogram">
+            <div id="high_acc">100%</div>
+          </div>
+        </div>
+        <div class="count_acc">
+          <div>低温下模型精度</div>
+          <div class="histogram">
+            <div id="low_acc">100%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 图片展示 -->
+    <div class="Fans_content">
+            <i class="topL"></i>
+            <i class="topR"></i>
+            <i class="bottomL"></i>
+            <i class="bottomR"></i>
+      <div style="font-size: 1.5vw; color: #b4c2dd; font-weight: 800">无人机航拍图片识别</div>
+     <div class="Fans_photo">
+      <!-- 添加loading加载效果 -->
+      <div id="loading" style="display: none; "></div>
+      <!-- 风机图片 -->
+      <img id="photo" src="{{ url_for('static', filename='/photo/0005.jpg') }}" alt="">
+      <iframe src="" frameborder="0" name="frameName" id="frameName" style="display: none;"></iframe>
+     </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  $(function () {
+    //TODO:需要改成定时查询
+    // 数据统计展示5s更新
+    setInterval(function () {
+      $.getJSON($SCRIPT_ROOT + '/rf',
+        function (data) {
+          console.log(data);
+          if(data.true.indexOf("正常") > -1){
+            $('#true_photo').attr('src', 'static\\css\\img\\fans2.webp');
+            $('#realStatus').text("正常");
+            $('#true').text("无");
+          }else {
+            $('#true_photo').attr('src', 'static\\css\\img\\fans1.png');
+            $('#realStatus').text(data.true.substring(0, data.true.indexOf("程度")-1));
+            $('#true').text(data.true.substr(data.true.indexOf("程度")+3));
+          }
+          $('#temp').text(data.temp);
+          if (data.pred.indexOf("正常") > -1) {
+            $('#pred_photo').attr('src', 'static\\css\\img\\fans2.webp');
+            $('#modelStatus').text("正常");
+            $('#pred').text("无");
+          } else {
+            $('#pred_photo').attr('src', 'static\\css\\img\\fans1.png');
+            $('#modelStatus').text(data.pred.substring(0, data.pred.indexOf("程度")-1));
+            $('#pred').text(data.pred.substr(data.pred.indexOf("程度")+3));
+
+          }
+          $('#low_acc').text(data['-15'] + "%");
+          $('#low_acc').css('width', data['-15'] * 0.01 * 5+ "vw");
+          $('#high_acc').text(data['+35'] + "%");
+          $('#high_acc').css('width', data['+35'] * 0.01 * 5 + "vw");
+        })
+    }, 5000);
+    // 模型分析图片15s更新
+    var flag = true; //默认开启定时器
+    var photoIndex = 0;
+    var imgs = ['0005.jpg', '0006.jpg', '0008.jpg', '0011.jpg', '0013.jpg', '0015.jpg', '0026.jpg', '0028.jpg', '0039.jpg', '0048.jpg', '0051.jpg', '0054.jpg'];
+    setTimeout(function () {
+      $('#loading').show();
+      $.getJSON($SCRIPT_ROOT + '/yolo/' + imgs[photoIndex],
+        function (data) {
+          console.log(data)
+          load_img(data['save_dir'])
+          $('#loading').hide();
+        })
+      photoIndex++;
+    }, 2000)
+    setInterval( function() {
+        console.log('photoIndex1', photoIndex);
+          if(flag) {
+          load_img('static\\photo\\' + imgs[photoIndex]);
+            setTimeout(function() {
+              $('#loading').show();
+              $.getJSON($SCRIPT_ROOT + '/yolo/' + imgs[photoIndex],
+                function (data) {
+                  console.log(data)
+                  load_img(data['save_dir'])
+                  $('#loading').hide();
+                })
+              photoIndex++;
+              if (photoIndex > 11) {
+                photoIndex = 0;
+              }
+            }, 2000)
+          }
+      }, 15000)
+    document.getElementById('frameName').onload = function () {
+      img_name = document.getElementsByName('photo')[0].files[0].name
+      load_img('static\\photo\\'+ img_name)
+      $('#loading').show();
+      flag = false; //关闭定时器
+      setTimeout(function() {
+        $.getJSON($SCRIPT_ROOT + '/yolo/' + img_name,
+          function (data) {
+            load_img(data['save_dir'])
+            $('#loading').hide();
+            flag = true; //开启定时器
+          })
+      }, 2000)
+    }
+
+    function load_img(img_src){
+      $("#photo").attr('src', img_src);
+    }
+  });
+
+
+</script>
+{% endblock %}
